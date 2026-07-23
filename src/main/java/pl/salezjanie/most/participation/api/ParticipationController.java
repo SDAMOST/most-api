@@ -52,8 +52,14 @@ class ParticipationController {
     }
 
     @GetMapping("/occurrences/{occurrenceId}/enrollments")
-    List<EnrollmentView> listEnrollments(@PathVariable UUID occurrenceId) {
+    public List<EnrollmentView> getEnrollments(@PathVariable UUID occurrenceId) {
         return enrollmentService.findByOccurrence(occurrenceId);
+    }
+
+    @GetMapping("/me/enrollments")
+    public List<EnrollmentView> getMyEnrollments(@AuthenticationPrincipal Jwt jwt) {
+        UUID memberId = UUID.fromString(jwt.getSubject());
+        return enrollmentService.findByMember(memberId);
     }
 
     // ── Attendance ─────────────────────────────────

@@ -87,6 +87,12 @@ public class EnrollmentService {
                 .toList();
     }
 
+    public List<EnrollmentView> findByMember(UUID memberId) {
+        return enrollmentRepository.findByMemberId(memberId).stream()
+                .map(EnrollmentService::toView)
+                .toList();
+    }
+
     // ──────────────────────────────────────────────
     //  Internal
     // ──────────────────────────────────────────────

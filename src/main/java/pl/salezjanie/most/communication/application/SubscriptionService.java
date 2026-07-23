@@ -10,6 +10,7 @@ import pl.salezjanie.most.communication.infrastructure.DeviceTokenRepository;
 import pl.salezjanie.most.communication.infrastructure.SubscriptionRepository;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -38,6 +39,12 @@ public class SubscriptionService {
     public void unsubscribe(UUID memberId, UUID initiativeId) {
         subscriptionRepository.deleteByMemberIdAndInitiativeId(memberId, initiativeId);
         log.info("Member {} unsubscribed from initiative {}", memberId, initiativeId);
+    }
+
+    public List<UUID> getMySubscriptions(UUID memberId) {
+        return subscriptionRepository.findByMemberId(memberId).stream()
+                .map(Subscription::getInitiativeId)
+                .toList();
     }
 
     public void registerDeviceToken(UUID memberId, String token) {

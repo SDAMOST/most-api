@@ -30,6 +30,12 @@ public class CommunicationController {
         this.notificationService = notificationService;
     }
 
+    @GetMapping("/subscriptions")
+    public List<UUID> getMySubscriptions(@AuthenticationPrincipal Jwt jwt) {
+        UUID memberId = UUID.fromString(jwt.getSubject());
+        return subscriptionService.getMySubscriptions(memberId);
+    }
+
     @PostMapping("/subscriptions/{initiativeId}")
     public ResponseEntity<Void> subscribe(@PathVariable UUID initiativeId, @AuthenticationPrincipal Jwt jwt) {
         UUID memberId = UUID.fromString(jwt.getSubject());
