@@ -1,4 +1,4 @@
-package pl.salezjanie.most.api;
+package pl.salezjanie.most;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

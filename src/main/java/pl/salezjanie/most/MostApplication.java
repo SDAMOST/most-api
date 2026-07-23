@@ -1,13 +1,13 @@
-package pl.salezjanie.most.api;
+package pl.salezjanie.most;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class ApiApplication {
+public class MostApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(ApiApplication.class, args);
+		SpringApplication.run(MostApplication.class, args);
 	}
 
 }
