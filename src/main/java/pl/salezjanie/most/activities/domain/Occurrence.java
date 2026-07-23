@@ -10,7 +10,11 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+import org.springframework.data.domain.AfterDomainEventPublication;
+import org.springframework.data.domain.DomainEvents;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -53,6 +57,9 @@ public class Occurrence {
     @CollectionTable(name = "occurrence_reschedule_log", joinColumns = @JoinColumn(name = "occurrence_id"))
     @OrderBy("rescheduled_at ASC")
     private List<RescheduleEntry> rescheduleLog = new ArrayList<>();
+
+    @Transient
+    private final transient List<Object> domainEvents = new ArrayList<>();
 
     /** Required by JPA. */
     protected Occurrence() {
@@ -101,6 +108,7 @@ public class Occurrence {
     public void publish() {
         requireStatus(OccurrenceStatus.PLANNED, "publish");
         this.status = OccurrenceStatus.PUBLISHED;
+        domainEvents.add(new OccurrencePublishedEvent(this.id, this.initiativeId, Instant.now()));
     }
 
     /**
@@ -120,6 +128,7 @@ public class Occurrence {
                     "Cannot cancel an occurrence in %s status".formatted(this.status));
         }
         this.status = OccurrenceStatus.CANCELLED;
+        domainEvents.add(new OccurrenceCancelledEvent(this.id, this.initiativeId, Instant.now()));
     }
 
     /**
@@ -140,8 +149,12 @@ public class Occurrence {
         }
 
         rescheduleLog.add(new RescheduleEntry(this.scheduledStart, newStart, reason));
+        
+        LocalDateTime oldStart = this.scheduledStart;
         this.scheduledStart = newStart;
         this.scheduledEnd = newEnd;
+        
+        domainEvents.add(new OccurrenceRescheduledEvent(this.id, this.initiativeId, oldStart, newStart, reason, Instant.now()));
     }
 
     // ──────────────────────────────────────────────
@@ -205,6 +218,20 @@ public class Occurrence {
     @Override
     public String toString() {
         return "Occurrence{id=%s, start=%s, status=%s}".formatted(id, scheduledStart, status);
+    }
+
+    // ──────────────────────────────────────────────
+    //  Domain Events
+    // ──────────────────────────────────────────────
+
+    @DomainEvents
+    public List<Object> domainEvents() {
+        return Collections.unmodifiableList(domainEvents);
+    }
+
+    @AfterDomainEventPublication
+    public void clearDomainEvents() {
+        domainEvents.clear();
     }
 
     // ──────────────────────────────────────────────
