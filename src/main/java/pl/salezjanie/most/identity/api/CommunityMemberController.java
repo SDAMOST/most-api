@@ -35,8 +35,22 @@ class CommunityMemberController {
     /**
      * Activate a pending member.
      */
+    @org.springframework.security.access.prepost.PreAuthorize("hasAuthority('VERIFY_USERS')")
     @PutMapping("/{memberId}/activate")
     MemberProfile activate(@PathVariable UUID memberId) {
         return service.activate(memberId);
+    }
+
+    /**
+     * Get list of members, optionally filtered by status.
+     */
+    @org.springframework.security.access.prepost.PreAuthorize("hasAuthority('VERIFY_USERS')")
+    @GetMapping
+    java.util.List<MemberProfile> getMembers(@org.springframework.web.bind.annotation.RequestParam(required = false) String status) {
+        if ("PENDING".equalsIgnoreCase(status)) {
+            return service.getPendingMembers();
+        }
+        // Return empty or all? For now, we only support PENDING.
+        return java.util.List.of();
     }
 }

@@ -24,11 +24,13 @@ public class AuthService {
     private final CommunityMemberRepository repository;
     private final PasswordEncoder passwordEncoder;
     private final JwtEncoder jwtEncoder;
+    private final UserRoleProvider roleProvider;
 
-    public AuthService(CommunityMemberRepository repository, PasswordEncoder passwordEncoder, JwtEncoder jwtEncoder) {
+    public AuthService(CommunityMemberRepository repository, PasswordEncoder passwordEncoder, JwtEncoder jwtEncoder, UserRoleProvider roleProvider) {
         this.repository = repository;
         this.passwordEncoder = passwordEncoder;
         this.jwtEncoder = jwtEncoder;
+        this.roleProvider = roleProvider;
     }
 
     public record LoginCommand(String email, String password) {}
@@ -42,6 +44,18 @@ public class AuthService {
             throw new IllegalArgumentException("Invalid email or password");
         }
 
+        if (member.getStatus() == pl.salezjanie.most.identity.domain.MemberStatus.PENDING) {
+            throw new IllegalStateException("Konto oczekuje na weryfikację przez administratora");
+        }
+
+        java.util.Set<String> authorities = new java.util.HashSet<>();
+        if (member.getSystemRole() == pl.salezjanie.most.identity.domain.SystemRole.ADMIN) {
+            authorities.add("MANAGE_SYSTEM");
+            authorities.add("VERIFY_USERS");
+            authorities.add("MANAGE_GLOBAL_EVENTS");
+        }
+        authorities.addAll(roleProvider.getAuthorities(member.getId()));
+
         Instant now = Instant.now();
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("most-api")
@@ -49,6 +63,7 @@ public class AuthService {
                 .expiresAt(now.plus(7, ChronoUnit.DAYS))
                 .subject(member.getId().toString())
                 .claim("email", member.getEmail())
+                .claim("authorities", authorities)
                 .build();
 
         JwsHeader jwsHeader = JwsHeader.with(MacAlgorithm.HS256).build();

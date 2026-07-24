@@ -44,6 +44,10 @@ public class CommunityMember {
     @Column(name = "status", nullable = false, length = 20)
     private MemberStatus status;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "system_role", nullable = false, length = 20)
+    private SystemRole systemRole;
+
     @Column(name = "created_at", updatable = false, nullable = false)
     private Instant createdAt;
 
@@ -66,6 +70,7 @@ public class CommunityMember {
         this.displayName = requireNonBlank(displayName, "displayName");
         this.email = requireNonBlank(email, "email");
         this.status = MemberStatus.PENDING;
+        this.systemRole = SystemRole.USER;
         this.createdAt = Instant.now();
         this.updatedAt = this.createdAt;
     }
@@ -170,6 +175,10 @@ public class CommunityMember {
 
     public MemberStatus getStatus() {
         return status;
+    }
+
+    public SystemRole getSystemRole() {
+        return systemRole;
     }
 
     public Instant getCreatedAt() {

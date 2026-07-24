@@ -61,6 +61,16 @@ public class CommunityMemberService {
         return toProfile(findOrThrow(memberId));
     }
 
+    /**
+     * Returns a list of members with PENDING status.
+     */
+    public java.util.List<MemberProfile> getPendingMembers() {
+        return repository.findByStatus(pl.salezjanie.most.identity.domain.MemberStatus.PENDING)
+                .stream()
+                .map(CommunityMemberService::toProfile)
+                .toList();
+    }
+
     private CommunityMember findOrThrow(UUID memberId) {
         return repository.findById(memberId)
                 .orElseThrow(() -> new MemberNotFoundException(

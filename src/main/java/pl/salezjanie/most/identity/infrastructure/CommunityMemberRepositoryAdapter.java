@@ -39,4 +39,9 @@ class CommunityMemberRepositoryAdapter implements CommunityMemberRepository {
     public boolean existsByEmail(String email) {
         return jpa.existsByEmail(email);
     }
+
+    @Override
+    public java.util.List<CommunityMember> findByStatus(pl.salezjanie.most.identity.domain.MemberStatus status) {
+        return jpa.findByStatus(status);
+    }
 }

@@ -6,8 +6,8 @@ package pl.salezjanie.most.structure.domain;
  */
 public enum LeadershipRole {
 
-    /** Senior leadership / board member. */
-    KADRA,
+    /** Senior leadership / board member (Sekstet/Septet). */
+    SEKSTET,
 
     /** Leader of a Przęsło (main branch). */
     PRZESLOWY,

@@ -18,4 +18,6 @@ public interface CommunityMemberRepository {
     Optional<CommunityMember> findByEmail(String email);
 
     boolean existsByEmail(String email);
+
+    java.util.List<CommunityMember> findByStatus(MemberStatus status);
 }

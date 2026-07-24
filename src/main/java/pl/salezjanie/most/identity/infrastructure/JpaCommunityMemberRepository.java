@@ -17,4 +17,6 @@ interface JpaCommunityMemberRepository extends JpaRepository<CommunityMember, UU
     Optional<CommunityMember> findByEmail(String email);
 
     boolean existsByEmail(String email);
+
+    java.util.List<CommunityMember> findByStatus(pl.salezjanie.most.identity.domain.MemberStatus status);
 }

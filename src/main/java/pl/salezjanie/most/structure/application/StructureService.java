@@ -90,6 +90,13 @@ public class StructureService {
                 .toList();
     }
 
+    /**
+     * Returns all active leadership roles for a member.
+     */
+    public List<pl.salezjanie.most.structure.domain.LeadershipRole> getRoles(UUID memberId) {
+        return repository.findActiveRoles(memberId);
+    }
+
     // ──────────────────────────────────────────────
     //  Internal helpers
     // ──────────────────────────────────────────────

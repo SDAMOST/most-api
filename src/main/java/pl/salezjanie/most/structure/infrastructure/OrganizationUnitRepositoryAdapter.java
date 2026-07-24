@@ -45,4 +45,9 @@ class OrganizationUnitRepositoryAdapter implements OrganizationUnitRepository {
     public List<OrganizationUnit> findAllRoots() {
         return jpa.findAllByParentUnitIdIsNull();
     }
+
+    @Override
+    public List<pl.salezjanie.most.structure.domain.LeadershipRole> findActiveRoles(UUID memberId) {
+        return jpa.findActiveRolesForMember(memberId);
+    }
 }

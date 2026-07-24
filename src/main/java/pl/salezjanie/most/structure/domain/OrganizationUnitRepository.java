@@ -21,4 +21,6 @@ public interface OrganizationUnitRepository {
      * Returns all root-level units (Przęsła).
      */
     List<OrganizationUnit> findAllRoots();
+
+    List<LeadershipRole> findActiveRoles(UUID memberId);
 }
