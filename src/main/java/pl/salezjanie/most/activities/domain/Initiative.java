@@ -77,6 +77,18 @@ public class Initiative {
     //  Business operations
     // ──────────────────────────────────────────────
 
+    public void update(String name, String description, int defaultPoints) {
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("name must not be blank");
+        }
+        if (defaultPoints < 0) {
+            throw new IllegalArgumentException("defaultPoints cannot be negative");
+        }
+        this.name = name;
+        this.description = description;
+        this.defaultPoints = defaultPoints;
+    }
+
     /**
      * Adds a schedule rule defining when occurrences should be generated.
      */

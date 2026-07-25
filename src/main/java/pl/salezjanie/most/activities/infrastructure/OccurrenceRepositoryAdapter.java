@@ -42,4 +42,9 @@ class OccurrenceRepositoryAdapter implements OccurrenceRepository {
     public List<Occurrence> findByInitiativeId(UUID initiativeId) {
         return jpa.findByInitiativeId(initiativeId);
     }
+
+    @Override
+    public void deleteByInitiativeId(UUID initiativeId) {
+        jpa.deleteByInitiativeId(initiativeId);
+    }
 }

@@ -101,8 +101,7 @@ public class OccurrenceService {
                 .distinct()
                 .toList();
 
-        Map<UUID, String> nameById = initiativeRepository.findAll().stream()
-                .filter(i -> initiativeIds.contains(i.getId()))
+        Map<UUID, String> nameById = initiativeRepository.findAllById(initiativeIds).stream()
                 .collect(Collectors.toMap(Initiative::getId, Initiative::getName));
 
         return occurrences.stream()
@@ -127,13 +126,18 @@ public class OccurrenceService {
     }
 
     private static OccurrenceView toView(Occurrence o, String initiativeName) {
+        String rescheduleReason = null;
+        if (!o.getRescheduleLog().isEmpty()) {
+            rescheduleReason = o.getRescheduleLog().get(o.getRescheduleLog().size() - 1).getReason();
+        }
         return new OccurrenceView(
                 o.getId(),
                 o.getInitiativeId(),
                 initiativeName,
                 o.getScheduledStart(),
                 o.getScheduledEnd(),
-                o.getStatus()
+                o.getStatus(),
+                rescheduleReason
         );
     }
 }

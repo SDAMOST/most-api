@@ -55,6 +55,17 @@ class ActivitiesController {
         return initiativeService.findById(id);
     }
 
+    @PutMapping("/initiatives/{id}")
+    InitiativeView updateInitiative(@PathVariable UUID id, @RequestBody pl.salezjanie.most.activities.application.UpdateInitiativeCommand command) {
+        return initiativeService.update(id, command);
+    }
+
+    @org.springframework.web.bind.annotation.DeleteMapping("/initiatives/{id}")
+    ResponseEntity<Void> deleteInitiative(@PathVariable UUID id) {
+        initiativeService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
     @PostMapping("/initiatives/{id}/schedule-rules")
     ResponseEntity<InitiativeView> addScheduleRule(@PathVariable UUID id,
                                                     @RequestBody AddScheduleRuleCommand command) {

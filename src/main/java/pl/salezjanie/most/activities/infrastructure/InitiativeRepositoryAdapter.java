@@ -28,7 +28,17 @@ class InitiativeRepositoryAdapter implements InitiativeRepository {
     }
 
     @Override
+    public List<Initiative> findAllById(Iterable<UUID> ids) {
+        return jpa.findAllById(ids);
+    }
+
+    @Override
     public List<Initiative> findAll() {
         return jpa.findAll();
+    }
+
+    @Override
+    public void delete(Initiative initiative) {
+        jpa.delete(initiative);
     }
 }

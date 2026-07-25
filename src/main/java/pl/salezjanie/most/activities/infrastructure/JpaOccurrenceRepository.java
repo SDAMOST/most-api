@@ -12,4 +12,6 @@ interface JpaOccurrenceRepository extends JpaRepository<Occurrence, UUID> {
     List<Occurrence> findByScheduledStartBetween(LocalDateTime from, LocalDateTime to);
 
     List<Occurrence> findByInitiativeId(UUID initiativeId);
+
+    void deleteByInitiativeId(UUID initiativeId);
 }

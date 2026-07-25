@@ -25,4 +25,9 @@ public interface OccurrenceRepository {
      * Finds all occurrences for a given initiative.
      */
     List<Occurrence> findByInitiativeId(UUID initiativeId);
+
+    /**
+     * Deletes all occurrences for a given initiative.
+     */
+    void deleteByInitiativeId(UUID initiativeId);
 }
