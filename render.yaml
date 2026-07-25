@@ -1,0 +1,35 @@
+databases:
+  - name: most-db
+    databaseName: most
+    user: most
+    plan: free
+
+services:
+  - type: web
+    name: most-api
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    envVars:
+      - key: PGHOST
+        fromDatabase:
+          name: most-db
+          property: host
+      - key: PGPORT
+        fromDatabase:
+          name: most-db
+          property: port
+      - key: PGDATABASE
+        fromDatabase:
+          name: most-db
+          property: database
+      - key: PGUSER
+        fromDatabase:
+          name: most-db
+          property: user
+      - key: PGPASSWORD
+        fromDatabase:
+          name: most-db
+          property: password
+      - key: JWT_SECRET
+        generateValue: true
