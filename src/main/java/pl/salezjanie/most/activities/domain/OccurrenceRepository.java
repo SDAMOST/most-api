@@ -25,4 +25,16 @@ public interface OccurrenceRepository {
      * Finds all occurrences for a given initiative.
      */
     List<Occurrence> findByInitiativeId(UUID initiativeId);
+
+    List<Occurrence> findByScheduledEndBeforeAndStatusIn(LocalDateTime before, List<OccurrenceStatus> statuses);
+
+    /**
+     * Deletes all occurrences for a given initiative.
+     */
+    void deleteByInitiativeId(UUID initiativeId);
+
+    /**
+     * Deletes a specific occurrence by its ID.
+     */
+    void deleteById(UUID id);
 }

@@ -1,0 +1,2 @@
+ALTER TABLE initiatives ADD COLUMN requires_enrollment BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE occurrences ADD COLUMN requires_enrollment BOOLEAN NOT NULL DEFAULT FALSE;

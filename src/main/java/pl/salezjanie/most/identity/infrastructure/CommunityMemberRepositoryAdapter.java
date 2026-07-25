@@ -44,4 +44,9 @@ class CommunityMemberRepositoryAdapter implements CommunityMemberRepository {
     public java.util.List<CommunityMember> findByStatus(pl.salezjanie.most.identity.domain.MemberStatus status) {
         return jpa.findByStatus(status);
     }
+
+    @Override
+    public java.util.List<CommunityMember> findAll() {
+        return jpa.findAll();
+    }
 }

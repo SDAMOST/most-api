@@ -71,6 +71,16 @@ public class CommunityMemberService {
                 .toList();
     }
 
+    /**
+     * Returns a list of all members.
+     */
+    public java.util.List<MemberProfile> getAllMembers() {
+        return repository.findAll()
+                .stream()
+                .map(CommunityMemberService::toProfile)
+                .toList();
+    }
+
     private CommunityMember findOrThrow(UUID memberId) {
         return repository.findById(memberId)
                 .orElseThrow(() -> new MemberNotFoundException(

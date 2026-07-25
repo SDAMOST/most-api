@@ -11,6 +11,7 @@ public record InitiativeView(
         String name,
         String description,
         UUID ownerUnitId,
+        boolean requiresEnrollment,
         List<ScheduleRuleView> scheduleRules
 ) {
 }

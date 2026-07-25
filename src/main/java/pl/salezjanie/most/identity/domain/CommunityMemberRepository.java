@@ -20,4 +20,6 @@ public interface CommunityMemberRepository {
     boolean existsByEmail(String email);
 
     java.util.List<CommunityMember> findByStatus(MemberStatus status);
+
+    java.util.List<CommunityMember> findAll();
 }

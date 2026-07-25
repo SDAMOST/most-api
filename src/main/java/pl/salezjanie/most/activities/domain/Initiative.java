@@ -46,6 +46,9 @@ public class Initiative {
     @Column(name = "owner_unit_id", nullable = false)
     private UUID ownerUnitId;
 
+    @Column(name = "requires_enrollment", nullable = false)
+    private boolean requiresEnrollment;
+
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "initiative_id", nullable = false)
     private List<ScheduleRule> scheduleRules = new ArrayList<>();
@@ -54,7 +57,7 @@ public class Initiative {
     protected Initiative() {
     }
 
-    private Initiative(UUID id, String name, String description, UUID ownerUnitId) {
+    private Initiative(UUID id, String name, String description, UUID ownerUnitId, boolean requiresEnrollment) {
         this.id = Objects.requireNonNull(id, "id must not be null");
         if (name == null || name.isBlank()) {
             throw new IllegalArgumentException("name must not be blank");
@@ -63,19 +66,33 @@ public class Initiative {
         this.description = description;
         this.ownerUnitId = Objects.requireNonNull(ownerUnitId, "ownerUnitId must not be null");
         this.defaultPoints = 1;
+        this.requiresEnrollment = requiresEnrollment;
     }
 
     // ──────────────────────────────────────────────
     //  Factory method
     // ──────────────────────────────────────────────
 
-    public static Initiative create(UUID id, String name, String description, UUID ownerUnitId) {
-        return new Initiative(id, name, description, ownerUnitId);
+    public static Initiative create(UUID id, String name, String description, UUID ownerUnitId, boolean requiresEnrollment) {
+        return new Initiative(id, name, description, ownerUnitId, requiresEnrollment);
     }
 
     // ──────────────────────────────────────────────
     //  Business operations
     // ──────────────────────────────────────────────
+
+    public void update(String name, String description, int defaultPoints, boolean requiresEnrollment) {
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("name must not be blank");
+        }
+        if (defaultPoints < 0) {
+            throw new IllegalArgumentException("defaultPoints cannot be negative");
+        }
+        this.name = name;
+        this.description = description;
+        this.defaultPoints = defaultPoints;
+        this.requiresEnrollment = requiresEnrollment;
+    }
 
     /**
      * Adds a schedule rule defining when occurrences should be generated.
@@ -128,6 +145,14 @@ public class Initiative {
 
     public int getDefaultPoints() {
         return defaultPoints;
+    }
+
+    public boolean isRequiresEnrollment() {
+        return requiresEnrollment;
+    }
+
+    public void setRequiresEnrollment(boolean requiresEnrollment) {
+        this.requiresEnrollment = requiresEnrollment;
     }
 
     public List<ScheduleRule> getScheduleRules() {

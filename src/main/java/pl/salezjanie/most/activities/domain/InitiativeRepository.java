@@ -13,5 +13,9 @@ public interface InitiativeRepository {
 
     Optional<Initiative> findById(UUID id);
 
+    List<Initiative> findAllById(Iterable<UUID> ids);
+
     List<Initiative> findAll();
+
+    void delete(Initiative initiative);
 }

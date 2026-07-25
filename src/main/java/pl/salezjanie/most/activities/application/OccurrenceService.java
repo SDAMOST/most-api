@@ -55,6 +55,22 @@ public class OccurrenceService {
     }
 
     @Transactional
+    public List<OccurrenceView> createBulk(UUID initiativeId, List<BulkOccurrenceCommand> commands) {
+        Initiative initiative = initiativeRepository.findById(initiativeId)
+                .orElseThrow(() -> new IllegalArgumentException("Initiative not found: " + initiativeId));
+
+        List<Occurrence> generated = commands.stream()
+                .map(cmd -> Occurrence.create(UUID.randomUUID(), initiativeId, cmd.scheduledStart(), cmd.scheduledEnd(), initiative.isRequiresEnrollment()))
+                .toList();
+
+        List<Occurrence> saved = occurrenceRepository.saveAll(generated);
+
+        return saved.stream()
+                .map(o -> toView(o, initiative.getName()))
+                .toList();
+    }
+
+    @Transactional
     public OccurrenceView publish(UUID occurrenceId) {
         Occurrence occurrence = findOrThrow(occurrenceId);
         occurrence.publish();
@@ -82,6 +98,14 @@ public class OccurrenceService {
         return toViewWithName(occurrenceRepository.save(occurrence));
     }
 
+    @Transactional
+    public void delete(UUID occurrenceId) {
+        // Find it first to make sure it exists
+        findOrThrow(occurrenceId);
+        // Will fail with DataIntegrityViolationException if there are any enrollments pointing to it
+        occurrenceRepository.deleteById(occurrenceId);
+    }
+
     // ──────────────────────────────────────────────
     //  Queries
     // ──────────────────────────────────────────────
@@ -101,8 +125,7 @@ public class OccurrenceService {
                 .distinct()
                 .toList();
 
-        Map<UUID, String> nameById = initiativeRepository.findAll().stream()
-                .filter(i -> initiativeIds.contains(i.getId()))
+        Map<UUID, String> nameById = initiativeRepository.findAllById(initiativeIds).stream()
                 .collect(Collectors.toMap(Initiative::getId, Initiative::getName));
 
         return occurrences.stream()
@@ -127,13 +150,19 @@ public class OccurrenceService {
     }
 
     private static OccurrenceView toView(Occurrence o, String initiativeName) {
+        String rescheduleReason = null;
+        if (!o.getRescheduleLog().isEmpty()) {
+            rescheduleReason = o.getRescheduleLog().get(o.getRescheduleLog().size() - 1).getReason();
+        }
         return new OccurrenceView(
                 o.getId(),
                 o.getInitiativeId(),
                 initiativeName,
                 o.getScheduledStart(),
                 o.getScheduledEnd(),
-                o.getStatus()
+                o.getStatus(),
+                o.isRequiresEnrollment(),
+                rescheduleReason
         );
     }
 }

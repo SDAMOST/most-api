@@ -32,25 +32,35 @@ public class OccurrenceGenerator {
         List<Occurrence> occurrences = new ArrayList<>();
 
         for (ScheduleRule rule : initiative.getScheduleRules()) {
-            // Find the first matching day on or after 'from'
-            LocalDate current = from.with(java.time.temporal.TemporalAdjusters.nextOrSame(rule.getDayOfWeek()));
-
-            while (!current.isAfter(to)) {
-                if (rule.isEffectiveOn(current)) {
-                    LocalDateTime start = current.atTime(rule.getStartTime());
-                    LocalDateTime end = start.plus(rule.getDuration());
-
-                    Occurrence occurrence = Occurrence.create(
-                            UUID.randomUUID(),
-                            initiative.getId(),
-                            start,
-                            end
-                    );
-                    occurrences.add(occurrence);
+            if (rule.getRecurrenceType() == pl.salezjanie.most.activities.domain.RecurrenceType.DAILY_WEEKDAYS) {
+                LocalDate current = from;
+                while (!current.isAfter(to)) {
+                    if (rule.isEffectiveOn(current) && current.getDayOfWeek().getValue() <= 5) {
+                        LocalDateTime start = current.atTime(rule.getStartTime());
+                        LocalDateTime end = start.plus(rule.getDuration());
+                        occurrences.add(Occurrence.create(UUID.randomUUID(), initiative.getId(), start, end, initiative.isRequiresEnrollment()));
+                    }
+                    current = current.plusDays(1);
                 }
-
-                // Advance by the rule's step (1 week or 2 weeks)
-                current = current.plusWeeks(rule.weekStep());
+            } else if (rule.getRecurrenceType() == pl.salezjanie.most.activities.domain.RecurrenceType.NONE) {
+                LocalDate target = rule.getEffectiveFrom().with(java.time.temporal.TemporalAdjusters.nextOrSame(rule.getDayOfWeek()));
+                if (!target.isBefore(from) && !target.isAfter(to) && rule.isEffectiveOn(target)) {
+                    LocalDateTime start = target.atTime(rule.getStartTime());
+                    LocalDateTime end = start.plus(rule.getDuration());
+                    occurrences.add(Occurrence.create(UUID.randomUUID(), initiative.getId(), start, end, initiative.isRequiresEnrollment()));
+                }
+            } else {
+                // Find the first matching day on or after 'from'
+                LocalDate current = from.with(java.time.temporal.TemporalAdjusters.nextOrSame(rule.getDayOfWeek()));
+                while (!current.isAfter(to)) {
+                    if (rule.isEffectiveOn(current)) {
+                        LocalDateTime start = current.atTime(rule.getStartTime());
+                        LocalDateTime end = start.plus(rule.getDuration());
+                        occurrences.add(Occurrence.create(UUID.randomUUID(), initiative.getId(), start, end, initiative.isRequiresEnrollment()));
+                    }
+                    // Advance by the rule's step (1, 2 or 3 weeks)
+                    current = current.plusWeeks(rule.weekStep());
+                }
             }
         }
 

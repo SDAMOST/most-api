@@ -4,10 +4,9 @@ package pl.salezjanie.most.activities.domain;
  * Recurrence pattern for a {@link ScheduleRule}.
  */
 public enum RecurrenceType {
-
-    /** Every week on the specified day. */
+    NONE,
+    DAILY_WEEKDAYS,
     WEEKLY,
-
-    /** Every two weeks on the specified day. */
-    BIWEEKLY
+    BIWEEKLY,
+    TRIWEEKLY
 }

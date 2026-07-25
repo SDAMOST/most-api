@@ -18,9 +18,11 @@ import java.util.UUID;
 public class InitiativeService {
 
     private final InitiativeRepository repository;
+    private final pl.salezjanie.most.activities.domain.OccurrenceRepository occurrenceRepository;
 
-    public InitiativeService(InitiativeRepository repository) {
+    public InitiativeService(InitiativeRepository repository, pl.salezjanie.most.activities.domain.OccurrenceRepository occurrenceRepository) {
         this.repository = repository;
+        this.occurrenceRepository = occurrenceRepository;
     }
 
     @Transactional
@@ -29,9 +31,61 @@ public class InitiativeService {
                 UUID.randomUUID(),
                 command.name(),
                 command.description(),
-                command.ownerUnitId()
+                command.ownerUnitId(),
+                command.requiresEnrollment()
         );
         return toView(repository.save(initiative));
+    }
+
+    @Transactional
+    public InitiativeView update(UUID id, UpdateInitiativeCommand command) {
+        Initiative initiative = findOrThrow(id);
+        boolean requiresEnrollmentChanged = initiative.isRequiresEnrollment() != command.requiresEnrollment();
+        
+        initiative.update(command.name(), command.description(), command.defaultPoints(), command.requiresEnrollment());
+
+        // Update schedule rules (simple replacement strategy)
+        // First, clear all existing rules by finding their IDs and removing them
+        List<UUID> existingRuleIds = initiative.getScheduleRules().stream()
+                .map(ScheduleRule::getId)
+                .toList();
+        for (UUID ruleId : existingRuleIds) {
+            initiative.removeScheduleRule(ruleId);
+        }
+
+        // Add new rules
+        if (command.scheduleRules() != null) {
+            for (AddScheduleRuleCommand ruleCommand : command.scheduleRules()) {
+                initiative.addScheduleRule(
+                        ruleCommand.recurrenceType(),
+                        ruleCommand.dayOfWeek(),
+                        ruleCommand.startTime(),
+                        Duration.ofMinutes(ruleCommand.durationMinutes()),
+                        ruleCommand.effectiveFrom(),
+                        ruleCommand.effectiveUntil()
+                );
+            }
+        }
+
+        if (requiresEnrollmentChanged) {
+            List<pl.salezjanie.most.activities.domain.Occurrence> occurrences = occurrenceRepository.findByInitiativeId(id);
+            java.time.LocalDateTime now = java.time.LocalDateTime.now();
+            for (pl.salezjanie.most.activities.domain.Occurrence occ : occurrences) {
+                if (occ.getScheduledStart().isAfter(now)) {
+                    occ.setRequiresEnrollment(command.requiresEnrollment());
+                }
+            }
+            occurrenceRepository.saveAll(occurrences);
+        }
+
+        return toView(repository.save(initiative));
+    }
+
+    @Transactional
+    public void delete(UUID id) {
+        Initiative initiative = findOrThrow(id);
+        occurrenceRepository.deleteByInitiativeId(id);
+        repository.delete(initiative);
     }
 
     @Transactional
@@ -68,7 +122,7 @@ public class InitiativeService {
                 .map(InitiativeService::toRuleView)
                 .toList();
 
-        return new InitiativeView(i.getId(), i.getName(), i.getDescription(), i.getOwnerUnitId(), rules);
+        return new InitiativeView(i.getId(), i.getName(), i.getDescription(), i.getOwnerUnitId(), i.isRequiresEnrollment(), rules);
     }
 
     private static ScheduleRuleView toRuleView(ScheduleRule r) {

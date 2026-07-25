@@ -14,6 +14,8 @@ public record OccurrenceView(
         String initiativeName,
         LocalDateTime scheduledStart,
         LocalDateTime scheduledEnd,
-        OccurrenceStatus status
+        OccurrenceStatus status,
+        boolean requiresEnrollment,
+        String rescheduleReason
 ) {
 }

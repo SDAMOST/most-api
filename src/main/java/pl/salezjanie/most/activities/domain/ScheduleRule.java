@@ -84,7 +84,11 @@ public class ScheduleRule {
      * Returns the step in weeks between occurrences.
      */
     public int weekStep() {
-        return recurrenceType == RecurrenceType.BIWEEKLY ? 2 : 1;
+        return switch (recurrenceType) {
+            case BIWEEKLY -> 2;
+            case TRIWEEKLY -> 3;
+            default -> 1;
+        };
     }
 
     public UUID getId() {
