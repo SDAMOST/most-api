@@ -52,4 +52,9 @@ class OccurrenceRepositoryAdapter implements OccurrenceRepository {
     public void deleteByInitiativeId(UUID initiativeId) {
         jpa.deleteByInitiativeId(initiativeId);
     }
+
+    @Override
+    public void deleteById(UUID id) {
+        jpa.deleteById(id);
+    }
 }

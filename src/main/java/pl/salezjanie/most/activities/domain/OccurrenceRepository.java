@@ -32,4 +32,9 @@ public interface OccurrenceRepository {
      * Deletes all occurrences for a given initiative.
      */
     void deleteByInitiativeId(UUID initiativeId);
+
+    /**
+     * Deletes a specific occurrence by its ID.
+     */
+    void deleteById(UUID id);
 }

@@ -50,7 +50,6 @@ class CommunityMemberController {
         if ("PENDING".equalsIgnoreCase(status)) {
             return service.getPendingMembers();
         }
-        // Return empty or all? For now, we only support PENDING.
-        return java.util.List.of();
+        return service.getAllMembers();
     }
 }

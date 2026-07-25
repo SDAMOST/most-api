@@ -60,7 +60,7 @@ public class OccurrenceService {
                 .orElseThrow(() -> new IllegalArgumentException("Initiative not found: " + initiativeId));
 
         List<Occurrence> generated = commands.stream()
-                .map(cmd -> Occurrence.create(UUID.randomUUID(), initiativeId, cmd.scheduledStart(), cmd.scheduledEnd()))
+                .map(cmd -> Occurrence.create(UUID.randomUUID(), initiativeId, cmd.scheduledStart(), cmd.scheduledEnd(), initiative.isRequiresEnrollment()))
                 .toList();
 
         List<Occurrence> saved = occurrenceRepository.saveAll(generated);
@@ -96,6 +96,14 @@ public class OccurrenceService {
         Occurrence occurrence = findOrThrow(occurrenceId);
         occurrence.reschedule(command.newStart(), command.newEnd(), command.reason());
         return toViewWithName(occurrenceRepository.save(occurrence));
+    }
+
+    @Transactional
+    public void delete(UUID occurrenceId) {
+        // Find it first to make sure it exists
+        findOrThrow(occurrenceId);
+        // Will fail with DataIntegrityViolationException if there are any enrollments pointing to it
+        occurrenceRepository.deleteById(occurrenceId);
     }
 
     // ──────────────────────────────────────────────
@@ -153,6 +161,7 @@ public class OccurrenceService {
                 o.getScheduledStart(),
                 o.getScheduledEnd(),
                 o.getStatus(),
+                o.isRequiresEnrollment(),
                 rescheduleReason
         );
     }

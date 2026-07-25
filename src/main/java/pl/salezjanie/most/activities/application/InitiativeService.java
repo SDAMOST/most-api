@@ -31,7 +31,8 @@ public class InitiativeService {
                 UUID.randomUUID(),
                 command.name(),
                 command.description(),
-                command.ownerUnitId()
+                command.ownerUnitId(),
+                command.requiresEnrollment()
         );
         return toView(repository.save(initiative));
     }
@@ -39,7 +40,9 @@ public class InitiativeService {
     @Transactional
     public InitiativeView update(UUID id, UpdateInitiativeCommand command) {
         Initiative initiative = findOrThrow(id);
-        initiative.update(command.name(), command.description(), command.defaultPoints());
+        boolean requiresEnrollmentChanged = initiative.isRequiresEnrollment() != command.requiresEnrollment();
+        
+        initiative.update(command.name(), command.description(), command.defaultPoints(), command.requiresEnrollment());
 
         // Update schedule rules (simple replacement strategy)
         // First, clear all existing rules by finding their IDs and removing them
@@ -62,6 +65,17 @@ public class InitiativeService {
                         ruleCommand.effectiveUntil()
                 );
             }
+        }
+
+        if (requiresEnrollmentChanged) {
+            List<pl.salezjanie.most.activities.domain.Occurrence> occurrences = occurrenceRepository.findByInitiativeId(id);
+            java.time.LocalDateTime now = java.time.LocalDateTime.now();
+            for (pl.salezjanie.most.activities.domain.Occurrence occ : occurrences) {
+                if (occ.getScheduledStart().isAfter(now)) {
+                    occ.setRequiresEnrollment(command.requiresEnrollment());
+                }
+            }
+            occurrenceRepository.saveAll(occurrences);
         }
 
         return toView(repository.save(initiative));
@@ -108,7 +122,7 @@ public class InitiativeService {
                 .map(InitiativeService::toRuleView)
                 .toList();
 
-        return new InitiativeView(i.getId(), i.getName(), i.getDescription(), i.getOwnerUnitId(), rules);
+        return new InitiativeView(i.getId(), i.getName(), i.getDescription(), i.getOwnerUnitId(), i.isRequiresEnrollment(), rules);
     }
 
     private static ScheduleRuleView toRuleView(ScheduleRule r) {

@@ -6,6 +6,7 @@ public record UpdateInitiativeCommand(
         String name,
         String description,
         int defaultPoints,
+        boolean requiresEnrollment,
         List<AddScheduleRuleCommand> scheduleRules
 ) {
 }

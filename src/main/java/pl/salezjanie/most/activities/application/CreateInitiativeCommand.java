@@ -8,6 +8,7 @@ import java.util.UUID;
 public record CreateInitiativeCommand(
         String name,
         String description,
-        UUID ownerUnitId
+        UUID ownerUnitId,
+        boolean requiresEnrollment
 ) {
 }

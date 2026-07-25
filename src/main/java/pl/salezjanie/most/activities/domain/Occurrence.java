@@ -49,6 +49,9 @@ public class Occurrence {
     @Column(name = "status", nullable = false, length = 20)
     private OccurrenceStatus status;
 
+    @Column(name = "requires_enrollment", nullable = false)
+    private boolean requiresEnrollment;
+
     /** Maximum number of enrollments. Null means unlimited. */
     @Column(name = "capacity")
     private Integer capacity;
@@ -66,7 +69,7 @@ public class Occurrence {
     }
 
     private Occurrence(UUID id, UUID initiativeId, LocalDateTime scheduledStart, LocalDateTime scheduledEnd,
-                       Integer capacity) {
+                       Integer capacity, boolean requiresEnrollment) {
         this.id = Objects.requireNonNull(id, "id must not be null");
         this.initiativeId = Objects.requireNonNull(initiativeId, "initiativeId must not be null");
         this.scheduledStart = Objects.requireNonNull(scheduledStart, "scheduledStart must not be null");
@@ -79,7 +82,8 @@ public class Occurrence {
             throw new IllegalArgumentException("capacity must be positive");
         }
 
-        this.status = OccurrenceStatus.PLANNED;
+        this.requiresEnrollment = requiresEnrollment;
+        this.status = requiresEnrollment ? OccurrenceStatus.PLANNED : OccurrenceStatus.PUBLISHED;
         this.capacity = capacity;
     }
 
@@ -88,14 +92,15 @@ public class Occurrence {
     // ──────────────────────────────────────────────
 
     public static Occurrence create(UUID id, UUID initiativeId,
-                                    LocalDateTime scheduledStart, LocalDateTime scheduledEnd) {
-        return new Occurrence(id, initiativeId, scheduledStart, scheduledEnd, null);
+                                    LocalDateTime scheduledStart, LocalDateTime scheduledEnd,
+                                    boolean requiresEnrollment) {
+        return new Occurrence(id, initiativeId, scheduledStart, scheduledEnd, null, requiresEnrollment);
     }
 
     public static Occurrence createWithCapacity(UUID id, UUID initiativeId,
                                                LocalDateTime scheduledStart, LocalDateTime scheduledEnd,
-                                               Integer capacity) {
-        return new Occurrence(id, initiativeId, scheduledStart, scheduledEnd, capacity);
+                                               Integer capacity, boolean requiresEnrollment) {
+        return new Occurrence(id, initiativeId, scheduledStart, scheduledEnd, capacity, requiresEnrollment);
     }
 
     // ──────────────────────────────────────────────
@@ -160,11 +165,15 @@ public class Occurrence {
         this.scheduledStart = newStart;
         this.scheduledEnd = newEnd;
         
-        domainEvents.add(new OccurrenceRescheduledEvent(this.id, this.initiativeId, oldStart, newStart, reason, Instant.now()));
+        domainEvents.add(new OccurrenceRescheduledEvent(this.id, this.initiativeId, oldStart, newStart, reason, java.time.Instant.now()));
+    }
+
+    public void setRequiresEnrollment(boolean requiresEnrollment) {
+        this.requiresEnrollment = requiresEnrollment;
     }
 
     // ──────────────────────────────────────────────
-    //  Accessors
+    //  Getters
     // ──────────────────────────────────────────────
 
     public UUID getId() {
@@ -185,6 +194,10 @@ public class Occurrence {
 
     public OccurrenceStatus getStatus() {
         return status;
+    }
+
+    public boolean isRequiresEnrollment() {
+        return requiresEnrollment;
     }
 
     /**

@@ -15,6 +15,7 @@ public record OccurrenceView(
         LocalDateTime scheduledStart,
         LocalDateTime scheduledEnd,
         OccurrenceStatus status,
+        boolean requiresEnrollment,
         String rescheduleReason
 ) {
 }

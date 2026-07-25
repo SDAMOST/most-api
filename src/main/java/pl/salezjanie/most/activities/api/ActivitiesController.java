@@ -116,4 +116,10 @@ class ActivitiesController {
     OccurrenceView reschedule(@PathVariable UUID id, @RequestBody RescheduleCommand command) {
         return occurrenceService.reschedule(id, command);
     }
+
+    @org.springframework.web.bind.annotation.DeleteMapping("/occurrences/{id}")
+    ResponseEntity<Void> deleteOccurrence(@PathVariable UUID id) {
+        occurrenceService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
 }
