@@ -55,6 +55,22 @@ public class OccurrenceService {
     }
 
     @Transactional
+    public List<OccurrenceView> createBulk(UUID initiativeId, List<BulkOccurrenceCommand> commands) {
+        Initiative initiative = initiativeRepository.findById(initiativeId)
+                .orElseThrow(() -> new IllegalArgumentException("Initiative not found: " + initiativeId));
+
+        List<Occurrence> generated = commands.stream()
+                .map(cmd -> Occurrence.create(UUID.randomUUID(), initiativeId, cmd.scheduledStart(), cmd.scheduledEnd()))
+                .toList();
+
+        List<Occurrence> saved = occurrenceRepository.saveAll(generated);
+
+        return saved.stream()
+                .map(o -> toView(o, initiative.getName()))
+                .toList();
+    }
+
+    @Transactional
     public OccurrenceView publish(UUID occurrenceId) {
         Occurrence occurrence = findOrThrow(occurrenceId);
         occurrence.publish();

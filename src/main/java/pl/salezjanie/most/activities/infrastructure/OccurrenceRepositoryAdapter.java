@@ -44,6 +44,11 @@ class OccurrenceRepositoryAdapter implements OccurrenceRepository {
     }
 
     @Override
+    public List<Occurrence> findByScheduledEndBeforeAndStatusIn(LocalDateTime before, List<pl.salezjanie.most.activities.domain.OccurrenceStatus> statuses) {
+        return jpa.findByScheduledEndBeforeAndStatusIn(before, statuses);
+    }
+
+    @Override
     public void deleteByInitiativeId(UUID initiativeId) {
         jpa.deleteByInitiativeId(initiativeId);
     }

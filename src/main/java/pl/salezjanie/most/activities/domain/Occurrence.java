@@ -107,6 +107,9 @@ public class Occurrence {
      */
     public void publish() {
         requireStatus(OccurrenceStatus.PLANNED, "publish");
+        if (this.scheduledStart.isBefore(LocalDateTime.now())) {
+            throw new IllegalStateException("Cannot publish an occurrence that has already started");
+        }
         this.status = OccurrenceStatus.PUBLISHED;
         domainEvents.add(new OccurrencePublishedEvent(this.id, this.initiativeId, Instant.now()));
     }
@@ -143,6 +146,9 @@ public class Occurrence {
         }
         if (reason == null || reason.isBlank()) {
             throw new IllegalArgumentException("Reschedule reason must not be blank");
+        }
+        if (newStart.isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Cannot reschedule to a past date");
         }
         if (!newEnd.isAfter(newStart)) {
             throw new IllegalArgumentException("newEnd must be after newStart");

@@ -13,5 +13,7 @@ interface JpaOccurrenceRepository extends JpaRepository<Occurrence, UUID> {
 
     List<Occurrence> findByInitiativeId(UUID initiativeId);
 
+    List<Occurrence> findByScheduledEndBeforeAndStatusIn(LocalDateTime before, List<pl.salezjanie.most.activities.domain.OccurrenceStatus> statuses);
+
     void deleteByInitiativeId(UUID initiativeId);
 }

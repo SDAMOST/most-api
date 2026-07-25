@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import pl.salezjanie.most.activities.application.AddScheduleRuleCommand;
+import pl.salezjanie.most.activities.application.BulkOccurrenceCommand;
 import pl.salezjanie.most.activities.application.CreateInitiativeCommand;
 import pl.salezjanie.most.activities.application.InitiativeService;
 import pl.salezjanie.most.activities.application.InitiativeView;
@@ -78,6 +79,13 @@ class ActivitiesController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
         return ResponseEntity.status(HttpStatus.CREATED).body(occurrenceService.generateForInitiative(id, from, to));
+    }
+
+    @PostMapping("/initiatives/{id}/occurrences/bulk")
+    ResponseEntity<List<OccurrenceView>> createBulkOccurrences(
+            @PathVariable UUID id,
+            @RequestBody List<BulkOccurrenceCommand> commands) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(occurrenceService.createBulk(id, commands));
     }
 
     // ── Occurrences (Calendar) ─────────────────────
