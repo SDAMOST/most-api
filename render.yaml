@@ -3,6 +3,7 @@ databases:
     databaseName: most
     user: most
     plan: free
+    region: frankfurt
 
 services:
   - type: web
@@ -10,6 +11,7 @@ services:
     env: docker
     dockerfilePath: ./Dockerfile
     plan: free
+    region: frankfurt
     envVars:
       - key: PGHOST
         fromDatabase:

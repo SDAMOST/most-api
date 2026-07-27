@@ -2,8 +2,6 @@
 -- PostgreSQL database dump
 --
 
-\restrict dmvfTC6T2vg6ZZvZFytGhkje8ip844DXpHAl7p2mqtqkQjuMTp2mxt5OemAVjT0
-
 -- Dumped from database version 17.10
 -- Dumped by pg_dump version 17.10
 
@@ -359,6 +357,4 @@ ALTER TABLE ONLY public.leadership_assignments
 --
 -- PostgreSQL database dump complete
 --
-
-\unrestrict dmvfTC6T2vg6ZZvZFytGhkje8ip844DXpHAl7p2mqtqkQjuMTp2mxt5OemAVjT0
 
