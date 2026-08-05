@@ -50,6 +50,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/actuator/**").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/occurrences", "/api/initiatives", "/api/initiatives/*").permitAll()
+                .requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
                 // All other endpoints require authentication
                 .anyRequest().authenticated()
             )
